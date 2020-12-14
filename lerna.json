@@ -1,0 +1,7 @@
+{
+  "npmClient": "yarn",
+  "packages": [
+    "packages/@space-ui/*"
+  ],
+  "version": "0.0.0"
+}

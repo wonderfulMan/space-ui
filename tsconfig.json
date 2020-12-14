@@ -1,0 +1,13 @@
+{
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "strict": true,
+    "jsxFactory": "h",
+    "jsx": "preserve",
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "allowJs": true,
+    "checkJs": true,
+    "alwaysStrict": true
+  }
+}
