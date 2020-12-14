@@ -1,6 +1,8 @@
 {
   "exclude": ["node_modules"],
+  "include": ["script"],
   "compilerOptions": {
+    "lib": ["ES2015"],
     "strict": true,
     "jsxFactory": "h",
     "jsx": "preserve",
@@ -8,6 +10,7 @@
     "experimentalDecorators": true,
     "allowJs": true,
     "checkJs": true,
-    "alwaysStrict": true
+    "alwaysStrict": true,
+    "resolveJsonModule": true
   }
 }
