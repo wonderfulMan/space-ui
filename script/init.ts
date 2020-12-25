@@ -1,29 +1,31 @@
-import {existsFile, getDirsPathConfig, readDirNames, throwError} from './help'
+import {existsFile, getDirsPathConfig, readDirNames, throwError, genPackagesDevelopConfigsPath} from './help'
 import {PACKAGES_CONFIG} from './config'
+import genPrettierrc from './generator/genPrettierrc'
 
-function rewritePackageJson(path: string): Array<string> {}
+function rewritePackageJson(path: string): void {}
 
 /**
  * @description 初始化每个package文件夹的开发配置选项（eslint，typescript等）
  * @returns {Promise<void>}
  */
 async function initPackages(): Promise<void> {
-    const packagesNames = readDirNames('../' + PACKAGES_CONFIG.packages)
+    const packagesNames = readDirNames(PACKAGES_CONFIG.components)
+
     if (packagesNames) {
-        const packagesNameConfigs = getDirsPathConfig(packagesNames, '../' + PACKAGES_CONFIG.packages)
+        const packagesNameConfigs = getDirsPathConfig(packagesNames, PACKAGES_CONFIG.components)
 
         for await (const {resolveDirPath} of packagesNameConfigs) {
-            const eslintrcPath = `${resolveDirPath}/${PACKAGES_CONFIG['eslintrc']}`
-            const tsconfigPath = `${resolveDirPath}/${PACKAGES_CONFIG['tsconfig']}`
-            const prettierrcPath = `${resolveDirPath}/${PACKAGES_CONFIG['prettierrc']}`
-            const packageJsonPath = `${resolveDirPath}/${PACKAGES_CONFIG['packageJson']}`
-
+            const {eslintrcPath, tsconfigPath, prettierrcPath, packageJsonPath} = genPackagesDevelopConfigsPath(
+                resolveDirPath,
+                PACKAGES_CONFIG,
+            )
             switch (true) {
-                case existsFile(eslintrcPath):
+                case !existsFile(prettierrcPath):
+                    genPrettierrc(resolveDirPath)
                     break
-                case existsFile(tsconfigPath):
+                case !existsFile(eslintrcPath):
                     break
-                case existsFile(prettierrcPath):
+                case !existsFile(tsconfigPath):
                     break
                 default:
                     break

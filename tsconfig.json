@@ -4,6 +4,7 @@
   "compilerOptions": {
     "lib": ["ES2015"],
     "strict": true,
+    "target": "es5",
     "jsxFactory": "h",
     "jsx": "preserve",
     "allowSyntheticDefaultImports": true,
@@ -11,6 +12,7 @@
     "allowJs": true,
     "checkJs": true,
     "alwaysStrict": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "types": ["./script/script.d.ts", "./script/loader.d.ts"]
   }
 }
