@@ -98,7 +98,7 @@ function createApplyCssLoader<T extends Rule<Rule<Module>>>(
  */
 export function createCSSRule(config: Config, isProduction: boolean, lang: string, reg: RegExp): void {
     const baseConfig = config.module.rule(lang).test(lang)
-    const applyCssLoader = createApplyCssLoader(isProduction, reg)
+    const applyCssLoader = createApplyCssLoader(isProduction, lang)
     //  <style>
     const normalVuexFileRule = baseConfig.oneOf('vue-normal').resourceQuery(/vue/)
     applyCssLoader(normalVuexFileRule, false)

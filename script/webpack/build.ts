@@ -11,7 +11,7 @@ async function setup(): Promise<void> {
             config = new (await import('./DevelopmentConfiguration')).default().toConfig()
             break
         case isBuildComponents:
-            config = new (await import('./GenComponentsConfiguration')).default().toConfig()
+            config = new (await import('./ComponentsConfiguration')).default().toConfig()
     }
 
     console.log(config)
