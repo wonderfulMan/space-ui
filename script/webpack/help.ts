@@ -1,8 +1,7 @@
 import Config, {Module, Rule} from 'webpack-chain'
 import {getDirsPathConfig, readDirNames, throwError} from '../help'
 import {DirPathConfigType, MapStringType} from '../script'
-import {LANG_CONFIG, REG_CONFIG} from '../config'
-import {loader} from 'mini-css-extract-plugin'
+import {DEV_SERVER_OPTIONS, REG_CONFIG} from '../config'
 /**
  * @description 获取组件入口文件
  * @param  {string} rootPath 组件库根目录
@@ -33,14 +32,20 @@ export function getComponentEnties(rootPath: string): MapStringType {
  * @param {Config} config 链式对象
  * @returns {void}
  */
-export function setSyntaxByBabel(params: type) {}
+export function setSyntaxByBabel(): void {
+    return undefined
+}
 
 /**
  * @description 设置图片、字体、流媒体、svg等静态资源配置
  * @param {Config} config
  * @returns {void}
  */
-export function setAssetsRules(params: type) {}
+export function setAssetsRules(): void {
+    return undefined
+}
+
+export function setHtmlWebpackPlugin(params: type) {}
 
 /**
  * @description 创建样式规则
@@ -55,25 +60,28 @@ function createApplyCssLoader<T extends Rule<Rule<Module>>>(
 
     return async function (rule: T, hasModule: boolean): Promise<void> {
         if (isProduction) {
-            rule.use('extrat-css-loader').loader((await import('mini-css-extract-plugin')).loader)
+            rule.use('extrat-css-loader').loader('mini-css-extract-plugin').loader
         } else {
-            rule.use('vue-style-loader')
-                .loader(await import('vue-style-loader'))
-                .options({sourceMap})
+            rule.use('vue-style-loader').loader('vue-style-loader').options({sourceMap})
         }
 
         const importLoaders = 2
+
         const cssOptions = {
             importLoaders,
             sourceMap,
+            modules: false,
         }
 
         if (hasModule) {
             Object.assign({modules: true, localIdentName: '[name]_[local]_[hash:base64:5]'}, cssOptions)
         }
 
-        rule.use('css-loader').options(cssOptions)
-        rule.use('postcss-loader').options({sourceMap, plugins: [require('autoprefix')]})
+        rule.use('css-loader').loader('css-loader').options(cssOptions)
+
+        rule.use('postcss-loader')
+            .loader('postcss-loader')
+            .options({sourceMap, plugins: [require('autoprefixer')]})
 
         let resolveLoader = null
 
@@ -86,7 +94,12 @@ function createApplyCssLoader<T extends Rule<Rule<Module>>>(
         rule.use(loader).loader(resolveLoader).options({sourceMap})
     }
 }
-
+/**
+ * @description 设置webpack-dev-server选项
+ */
+export function getWebpackDevServerOptions(): typeof DEV_SERVER_OPTIONS {
+    return DEV_SERVER_OPTIONS
+}
 /**
  * @description 设置样式loader配置
  * @param {Config} config webpack-chain链式对象
@@ -97,7 +110,7 @@ function createApplyCssLoader<T extends Rule<Rule<Module>>>(
  * @returns {void}
  */
 export function createCSSRule(config: Config, isProduction: boolean, lang: string, reg: RegExp): void {
-    const baseConfig = config.module.rule(lang).test(lang)
+    const baseConfig = config.module.rule(lang).test(reg)
     const applyCssLoader = createApplyCssLoader(isProduction, lang)
     //  <style>
     const normalVuexFileRule = baseConfig.oneOf('vue-normal').resourceQuery(/vue/)

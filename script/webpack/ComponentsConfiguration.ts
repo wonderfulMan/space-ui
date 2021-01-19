@@ -2,11 +2,11 @@ import * as Config from 'webpack-chain'
 import {Configuration} from 'webpack'
 import {PACKAGES_CONFIG} from '../config'
 import {getComponentEnties} from './help'
-import {ConfigurationInterface, MapStringType} from '../script'
+import {ConfigurationRunnerInterface, MapStringType} from '../script'
 /**
  * @description 生成webpack配置文件
  */
-export default class GenComponentsConfiguration implements ConfigurationInterface {
+export default class GenComponentsConfiguration implements ConfigurationRunnerInterface {
     private entryConfigs: MapStringType = {}
 
     private config!: Config
@@ -18,11 +18,11 @@ export default class GenComponentsConfiguration implements ConfigurationInterfac
         this.genConfigs()
     }
 
-    genConfigs(): void {
+    private genConfigs(): void {
         this.setEntry()
     }
 
-    setEntry(): void {
+    private setEntry(): void {
         Object.entries(this.entryConfigs).map(([key, value]) => {
             this.config.entry(key).add(value).end()
         })
@@ -30,5 +30,8 @@ export default class GenComponentsConfiguration implements ConfigurationInterfac
 
     toConfig(): Configuration {
         return this.config.toConfig()
+    }
+    toRunning(): Promise<void> {
+        throw new Error('Method not implemented.')
     }
 }

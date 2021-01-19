@@ -1,30 +1,35 @@
-import {Configuration} from 'webpack'
+import {Configuration, webpack} from 'webpack'
+import * as WebpackDevServer from 'webpack-dev-server'
 import * as Config from 'webpack-chain'
-import {DEVELOPMENT_CONFIG, LANG_CONFIG, REG_CONFIG} from '../config'
+import {DEVELOPMENT_CONFIG, LANG_CONFIG, NODE_ENV_CONFIG, REG_CONFIG} from '../config'
 import {resolve} from '../help'
-import {ConfigurationInterface, StyleLoaderOptionsType} from '../script'
-import {createCSSRule} from './help'
+import {ConfigurationRunnerInterface} from '../script'
+import {createCSSRule, getWebpackDevServerOptions} from './help'
 /**
  * @description 开发环境配置
  */
-export default class DevelopmentConfiguration implements ConfigurationInterface {
+export default class DevelopmentConfiguration implements ConfigurationRunnerInterface {
     private config: Config
 
     constructor() {
         this.config = new Config()
 
-        this.genConfigs()
+        this.resolveConfigs()
     }
 
-    get isProduction(): boolean {
-        return process.env.NODE_ENV === 'production'
+    private get isProduction(): boolean {
+        return process.env.NODE_ENV === NODE_ENV_CONFIG['production']
     }
 
-    get isDevelopment(): boolean {
-        return process.env.NODE_ENV === 'development'
+    private get isDevelopment(): boolean {
+        return process.env.NODE_ENV === NODE_ENV_CONFIG['development']
     }
 
-    genConfigs(): void {
+    /**
+     * @description 设置每个chain
+     * @returns {void}
+     */
+    private resolveConfigs(): void {
         this.setEntry()
         this.setOutput()
         this.setCssStyle()
@@ -34,15 +39,19 @@ export default class DevelopmentConfiguration implements ConfigurationInterface 
      * @description 设置打包入口
      * @returns {void}
      */
-    setEntry(): void {
-        this.config.entry(DEVELOPMENT_CONFIG['entryKey']).add(DEVELOPMENT_CONFIG['entryPath'])
+    private setEntry(): void {
+        this.config.entry(DEVELOPMENT_CONFIG['entryKey']).add(resolve(DEVELOPMENT_CONFIG['entryPath']))
     }
+
     /**
      * @description 设置打包出口，文件名以及全局hash长度
      * @returns {void}
      */
-    setOutput(): void {
-        this.config.output.path(resolve('../../example/dist')).filename('bundle.[chunkhash].js').hashDigestLength(8)
+    private setOutput(): void {
+        this.config.output
+            .path(resolve(DEVELOPMENT_CONFIG['outputPath']))
+            .filename(DEVELOPMENT_CONFIG['outputFilename'])
+            .hashDigestLength(DEVELOPMENT_CONFIG['outputFilenameHashLength'])
     }
 
     /**
@@ -50,7 +59,7 @@ export default class DevelopmentConfiguration implements ConfigurationInterface 
      * @param {Config} config 链式对象
      * @returns {void}
      */
-    setCssStyle(): void {
+    private setCssStyle(): void {
         createCSSRule(this.config, this.isProduction, LANG_CONFIG['css'], REG_CONFIG['css'])
         createCSSRule(this.config, this.isProduction, LANG_CONFIG['less'], REG_CONFIG['less'])
         createCSSRule(this.config, this.isProduction, LANG_CONFIG['postcss'], REG_CONFIG['postcss'])
@@ -59,7 +68,33 @@ export default class DevelopmentConfiguration implements ConfigurationInterface 
         createCSSRule(this.config, this.isProduction, LANG_CONFIG['scss'], REG_CONFIG['scss'])
     }
 
+    /**
+     * @description 设置plugins
+     * @returns {void}
+     */
+    private setPlugins(): void {}
+    /**
+     * @description 获取webpack配置
+     * @returns {void}
+     */
     toConfig(): Configuration {
         return this.config.toConfig()
+    }
+
+    /**
+     * @description 启动webpack编译
+     */
+    async toRunning(): Promise<void> {
+        const compiler = webpack(this.toConfig())
+
+        switch (true) {
+            case this.isDevelopment: {
+                const server = new WebpackDevServer(compiler, getWebpackDevServerOptions())
+                server.listen(8080)
+                break
+            }
+            default:
+                break
+        }
     }
 }

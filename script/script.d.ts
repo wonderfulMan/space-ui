@@ -16,10 +16,9 @@ export type DirPathConfigType = {
 
 export type MapStringType = {[key: string]: string}
 
-export interface ConfigurationInterface {
-    setEntry(): void
+export interface ConfigurationRunnerInterface {
     toConfig(): Configuration
-    genConfigs(): void
+    toRunning(): Promise<void>
 }
 
 export type StyleLoaderOptionsType = {
